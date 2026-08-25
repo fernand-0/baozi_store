@@ -1,0 +1,44 @@
+package com.baozistore.baozi_store.controller;
+
+import com.baozistore.baozi_store.model.Produto;
+import com.baozistore.baozi_store.repository.ProdutoRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/produtos")
+public class ProdutoController {
+
+    @Autowired
+    private ProdutoRepository repository;
+
+    @PostMapping
+    public ResponseEntity<Produto> criar(@RequestBody Produto produto) {
+        return ResponseEntity.status(201).body(repository.save(produto));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Produto>> listarTodos() {
+        return ResponseEntity.ok(repository.findAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Produto> buscarPorId(@PathVariable Long id) {
+        return repository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+}
